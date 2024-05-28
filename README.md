@@ -1,1 +1,1 @@
-This is g-pies.github.io
+This repository is responsible for hosting the GitHub Pages site. The content of the site is pushed by triggering the `pages.yml` workflow in this repo.

@@ -1,10 +1,39 @@
 name: Deploy GitHub pages from another workflow
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      source_repository:
+        type: string
+        required: true
+      source_run_id:
+        type: number
+        required: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - run: This is an empty workflow
+      - name: Download the source artifact
+        run: >-
+          gh run download
+          ${{ inputs.source_run_id }}
+          --repo ${{ inputs.source_repository }}
+          --name github-pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Extract the source artifact
+        run: mkdir github-pages && tar -xf artifact.tar -C github-pages
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./github-pages
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
